@@ -29,8 +29,8 @@ post: async (req,res)=>{
     let {fname , lname ,password , email}= req.body;
     var hashedpassword;
     if(fname && lname && password && email){
-  
-        // hashedpassword = bcrypt.hash(password,process.env.SALT);
+        const salt= parseInt(process.env.SALT);
+        hashedpassword = await bcrypt.hash(password, salt);
         email=email.toLowerCase();  
         try {
 
@@ -43,7 +43,7 @@ post: async (req,res)=>{
                 const user= new student({
                   fname:fname,
                   lname:lname,
-                  password:password,
+                  password:hashedpassword,
                   email:email
                 });
 
