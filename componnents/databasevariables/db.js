@@ -3,42 +3,65 @@ var mysql = require('mysql2');
 const sqlcon=require("./sqlcon");
 const app = express();
 
-const connectDB = async () => {
-    
-    
+require('dotenv').config();
+const mongoose = require("mongoose");
 
 
-        sqlcon.connect(async function(err) {
-            if (err) throw err;
-            console.log("Connected!");
-        
-            sqlcon.query("CREATE DATABASE IF NOT EXISTS hell", function (err, result) {
-              if (err) throw err;
-              console.log("Database created");
-            });
-        
-            const tableschema="CREATE TABLE user (id VARCHAR(50),fname VARCHAR(255),lname VARCHAR(255),password VARCHAR(255), email VARCHAR(255) ,otp MEDIUMINT(255),verify BOOLEAN, PRIMARY KEY (email));";
-        
-            
-            sqlcon.query("show tables from hell",async (err,result)=>{
-                // console.log(typeof(re[0].Tables_in_hell));
-                var c=0;
-                result.forEach(element => {
-                  if(element.Tables_in_hell=="user")
-                      c++;
-                  });
-                if(c==0){
-                  sqlcon.query(tableschema, function (err, result) {
-                      if (err) throw err;
-                      console.log("Table created");
-                    });
-        
-                }
-            });
-        
-        
+const connectDB =  {
+  connection: async () => {
+            await mongoose.set("strictQuery", false);
+            await mongoose.connect("mongodb+srv://udityaprakash01:"+process.env.MONGODBPASS+"@cluster0.za5wk8j.mongodb.net/?retryWrites=true&w=majority", (err) => {   
+              if (!err) {
+                  console.log("db connected successfully");
+                  try{
+                    connectDB.studentschema;
+
+                  }catch(err){
+                    console.log("error in schema: "+err);
+                  }
+              } else {
+                  console.log("Retrying connecting to database");
+                  connectDB.connection();
+              }
           });
+    },
+  studentschema: new mongoose.Schema({
+    fname : {
+     type:String,
+     min:8,
+     required:true
+    },
+    lname : {
+      type:String,
+      min:8,
+     },
+    password: {
+        type:String,
+        min:8,
+        require:true
+       },
+    email: {
+      type: String,
+      trim: true,
+      lowercase: true,
+      unique: true,
+      validate: {
+          validator: function(v) {
+              return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(v);
+          },
+          message: "Please enter a valid email"
+      },
+      required: [true, "Email required"]
+    },
+    otp:{
+      type:Number,
+    },
+    verified:{
+      type:Boolean
     }
+})
+
+}
 
 
 module.exports=connectDB;

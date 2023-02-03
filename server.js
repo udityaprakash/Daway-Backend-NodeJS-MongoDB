@@ -10,6 +10,7 @@ app.use(bodyparser.json());
 app.use(bodyparser.urlencoded({extended:false}));
 app.use(express.static("public"));
 
+db.connection();
 
 
 //routes
@@ -20,16 +21,15 @@ app.use('/user',require('./routers/userrouter'));
 const port= process.env.PORT;
 // console.log(process.env.SALT);
 
-async function hashing(){
-  var ch = await bcrypt.hash("password1", 5);
-  console.log(ch);
-  return ch;
-}
+// async function hashing(){
+//   var ch = await bcrypt.hash("password1", 5);
+//   console.log(ch);
+//   return ch;
+// }
 
-console.log(hashing());
+// console.log(hashing());
 
 
-db();
 
 app.get("/",(req,res)=>{
     res.json({
