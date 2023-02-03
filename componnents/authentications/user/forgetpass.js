@@ -1,6 +1,6 @@
 const express=require("express");
 const bcrypt = require("bcrypt");
-const sqlcon=require("../../databasevariables/sqlcon");
+const sqlcon=require("../../databasevariables/studentdb");
 const mysql = require("mysql2");
 const path=require("../../../path");
 const nodemailer=require("nodemailer");

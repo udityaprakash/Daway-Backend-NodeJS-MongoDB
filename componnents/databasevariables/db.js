@@ -1,7 +1,8 @@
 const express = require("express");
 var mysql = require('mysql2');
-const sqlcon=require("./sqlcon");
+const sqlcon=require("./studentdb");
 const app = express();
+const student = require("./studentdb");
 
 require('dotenv').config();
 const mongoose = require("mongoose");
@@ -14,8 +15,7 @@ const connectDB =  {
               if (!err) {
                   console.log("db connected successfully");
                   try{
-                    connectDB.studentschema;
-
+                    student;
                   }catch(err){
                     console.log("error in schema: "+err);
                   }
@@ -24,42 +24,7 @@ const connectDB =  {
                   connectDB.connection();
               }
           });
-    },
-  studentschema: new mongoose.Schema({
-    fname : {
-     type:String,
-     min:8,
-     required:true
-    },
-    lname : {
-      type:String,
-      min:8,
-     },
-    password: {
-        type:String,
-        min:8,
-        require:true
-       },
-    email: {
-      type: String,
-      trim: true,
-      lowercase: true,
-      unique: true,
-      validate: {
-          validator: function(v) {
-              return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(v);
-          },
-          message: "Please enter a valid email"
-      },
-      required: [true, "Email required"]
-    },
-    otp:{
-      type:Number,
-    },
-    verified:{
-      type:Boolean
     }
-})
 
 }
 

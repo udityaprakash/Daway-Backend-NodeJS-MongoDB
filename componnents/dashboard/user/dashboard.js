@@ -1,6 +1,6 @@
 const express=require("express");
 const bcrypt = require("bcrypt");
-const sqlcn=require("../../databasevariables/sqlcon");
+const sqlcn=require("../../databasevariables/studentdb");
 const mysql = require("mysql2");
 // import '../../server.js';
 const sqlcon = sqlcn;

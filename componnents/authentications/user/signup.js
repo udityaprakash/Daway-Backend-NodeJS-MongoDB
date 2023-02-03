@@ -1,6 +1,6 @@
 const express=require("express");
 const bcrypt = require("bcrypt");
-const sqlcon=require("../../databasevariables/sqlcon");
+const sqlcon=require("../../databasevariables/studentdb");
 const path=require("../../../path");
 const mysql = require("mysql2");
 var Emailvalidator = require("email-validator");
@@ -8,13 +8,12 @@ const { v4: uuidv4 } = require('uuid');
 require('dotenv').config()
 const nodemailer=require("nodemailer");
 const otpGenerator = require('otp-generator');
+const mongoose = require("mongoose");
+const student = require("../../databasevariables/studentdb");
  
 
 var transporter = nodemailer.createTransport({
   service: 'gmail',
-  // host: 'smtp.gmail.com',
-  //  port: 465,
-  //  secure: true,
   auth: {
     user: 'udityap.davegroup@gmail.com',
     pass: process.env.EMAILPASSWORD
@@ -31,58 +30,45 @@ post: async (req,res)=>{
     var hashedpassword;
     if(fname && lname && password && email){
   
-        bcrypt.hash(password,process.env.SALT,(err,hash)=>{
-          hashedpassword=hash;
-        });
-        var verify= false;
-        email=email.toLowerCase();
-        // const id= crypto.randomBytes(3*4).toString('base64');
-        const id = uuidv4();
-        // console.log(id);
-        var query = "INSERT INTO user (id , fname , lname , password , email , verify) VALUES ('"+id+"','"+fname+"','"+lname+"','"+
-        password
-        // hashedpassword
-        +"','"+email+"',"+verify+");";
-  
+        // hashedpassword = bcrypt.hash(password,process.env.SALT);
+        email=email.toLowerCase();  
         try {
 
           if(Emailvalidator.validate(email)){
-          var query2="SELECT * FROM user WHERE email = '"+email+"';";
-  
-          sqlcon.query(query2, function (err, resu) {
-            if (!err){
-              if(resu.length!=0){
-                res.json({status:"user found",
-                msg:"user already exists"});
+              if(await result.studentexist(email)){
+                res.json({success:false,
+                msg:"user already exists"}); 
               }else{
-                sqlcon.query(query, function (err, result) {
-                  if (!err){
-                    console.log("created");
-  
-                    // res.status(201).json({success:true,
-                    // msg:"successfully added to database"});
-                    
-                    res.redirect("signup/verifyotp/"+email);
-          
-                  }else{
-                    res.json({status:"Internel server error",
-                    msg:"something wrong in backend"});
-                  }
+
+                const user= new student({
+                  fname:fname,
+                  lname:lname,
+                  password:password,
+                  email:email
                 });
-  
-  
-  
-              }
-    
-            }else{
-              res.json({status:"Internel server error",
-              msg:"something wrong in backend"});
+
+                  await user.save().then((user)=>{
+                    res.status(200).json({
+                      success:true,
+                      msg:"User Recorded Successfully"
+                    });
+
+                  }).catch((err)=>{
+
+                    res.status(400).json({
+                      success:false,
+                      error:err,
+                      msg:"User not been recorded"
+                    });
+
+                  });
             }
-          });
   
         }else{
-          res.json({success:false,
-              msg:"Invalid Email Format"});
+          res.json({
+              success:false,
+              msg:"Invalid Email Format"
+            });
 
         }
           
@@ -91,8 +77,10 @@ post: async (req,res)=>{
       }
   
     }else{
-        res.json({status:"Invalid",
-        msg:"One of the field Found Missing"});
+        res.json({
+        success:false,
+        msg:"One of the field Found Missing"
+      });
     }
   
   },
@@ -178,6 +166,18 @@ post: async (req,res)=>{
       }
       );
 
+
+  },
+  studentexist: async (email)=>{
+    var u = await student.find({email : email});
+    if(u.length!=0){
+      console.log("user found\n");
+      return true;
+    }
+    else{
+      console.log("user not found\n");
+      return false; 
+    }
 
   },
   checkotp:async (req,res)=>{
