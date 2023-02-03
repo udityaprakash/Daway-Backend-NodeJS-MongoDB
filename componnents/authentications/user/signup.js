@@ -48,10 +48,11 @@ post: async (req,res)=>{
                 });
 
                   await user.save().then((user)=>{
-                    res.status(200).json({
-                      success:true,
-                      msg:"User Recorded Successfully"
-                    });
+                    // res.status(200).json({
+                    //   success:true,
+                    //   msg:"User Recorded Successfully"
+                    // });
+                    res.redirect("signup/verifyotp/"+email);
 
                   }).catch((err)=>{
 
@@ -97,74 +98,136 @@ post: async (req,res)=>{
     let email=req.params['email'];
     // console.log(process.env.EMAILPASSWORD,email);
     let otp = otpGenerator.generate(6, { upperCaseAlphabets: false, specialChars: false ,lowerCaseAlphabets:false});
-    var query="UPDATE user SET otp = "+ otp + " WHERE email = '" + email + "';" ;
-    var query2="SELECT * FROM user WHERE email = '"+email+"';";
 
-    
-      sqlcon.query(query2, function (err, resu) {
-        if(resu.length!=0){
-        if(resu[0].verify==true){
+
+    // var query="UPDATE user SET otp = "+ otp + " WHERE email = '" + email + "';" ;
+    // var query2="SELECT * FROM user WHERE email = '"+email+"';";
+    if(Emailvalidator.validate(email)){
+      if(await result.studentexist(email)){
+        var u = await student.findOne({email : email});
+        const sa = await student.findOneAndUpdate({email:email},{otp:otp});
+        if(u.verified == true){
           res.json({
-            success:false,
-            msg:"user already verified"
-          })
+                    success:false,
+                    msg:"user already verified"
+                  });
         }else{
-
           try{
-            sqlcon.query(query, function (err, result) {
-              if (err) throw err;
-              console.log(result.affectedRows + " record(s) updated");
-            });
-        
-        
+
             var mailOptions = {
-              from: 'udityap.davegroup@gmail.com',
-              to: email,
-              subject: 'Verify Email from DAWAY',
-              // text: 'Your OTP is '+otp+'.'
-              html: `
-          <div
-            class="container"
-            style="max-width: 90%; margin: auto; padding-top: 20px"
-          >
-            <h2>Welcome to DAWAY.</h2>
-            <h4>Greatings of the day </h4>
-            <p style="margin-bottom: 30px;">Please enter the OTP to get started</p>
-            <h1 style="font-size: 40px; letter-spacing: 2px; text-align:center;">${otp}</h1>
-       </div>`
+                        from: 'udityap.davegroup@gmail.com',
+                        to: email,
+                        subject: 'Verify Email from DAWAY',
+                        html: `
+                    <div
+                      class="container"
+                      style="max-width: 90%; margin: auto; padding-top: 20px"
+                    >
+                      <h2>Welcome to DAWAY.</h2>
+                      <h4>Greatings of the day </h4>
+                      <p style="margin-bottom: 30px;">Please enter the OTP to get started</p>
+                      <h1 style="font-size: 40px; letter-spacing: 2px; text-align:center;">${otp}</h1>
+                 </div>`
             };
-        
+
             transporter.sendMail(mailOptions, function(error, info){
-              if (error) {
-                console.log("not send :"+error);
-              } else {
-                console.log('Email sent: ' + info.response);
-              }
+                        if (error) {
+                          console.log("not send :"+error);
+                        } else {
+                          console.log('Email sent: ' + info.response);
+                        }
             });
-        
+
             res.sendFile(path+"/public/signupotpverification.html");
 
-          }
-          catch(err){
 
+
+          }catch(err){
             res.json({
-              success:false,
-              msg:"Either email invalid or email not recieved"
-            });
+                        success:false,
+                        msg:"Either email invalid or sender email invalid"
+                      });
 
           }
-
-
-
-
-        }}else{
-          res.json({
-            success:false,
-            msg:"Either email invalid or email not recieved"
-          });
         }
+
+      }else{
+        res.json({
+          success:false,
+          msg:"Email does not exist"
+        });
       }
-      );
+    }else{
+      res.json({
+        success:false,
+        msg:"Invalid Email Format"
+      });
+    }
+    
+    //   sqlcon.query(query2, function (err, resu) {
+        // if(resu.length!=0){
+    //     if(resu[0].verify==true){
+    //       res.json({
+    //         success:false,
+    //         msg:"user already verified"
+    //       })
+    //     }else{
+
+    //       try{
+    //         sqlcon.query(query, function (err, result) {
+    //           if (err) throw err;
+    //           console.log(result.affectedRows + " record(s) updated");
+    //         });
+        
+        
+    //         var mailOptions = {
+    //           from: 'udityap.davegroup@gmail.com',
+    //           to: email,
+    //           subject: 'Verify Email from DAWAY',
+    //           // text: 'Your OTP is '+otp+'.'
+    //           html: `
+    //       <div
+    //         class="container"
+    //         style="max-width: 90%; margin: auto; padding-top: 20px"
+    //       >
+    //         <h2>Welcome to DAWAY.</h2>
+    //         <h4>Greatings of the day </h4>
+    //         <p style="margin-bottom: 30px;">Please enter the OTP to get started</p>
+    //         <h1 style="font-size: 40px; letter-spacing: 2px; text-align:center;">${otp}</h1>
+    //    </div>`
+    //         };
+        
+    //         transporter.sendMail(mailOptions, function(error, info){
+    //           if (error) {
+    //             console.log("not send :"+error);
+    //           } else {
+    //             console.log('Email sent: ' + info.response);
+    //           }
+    //         });
+        
+    //         res.sendFile(path+"/public/signupotpverification.html");
+
+    //       }
+    //       catch(err){
+
+    //         res.json({
+    //           success:false,
+    //           msg:"Either email invalid or email not recieved"
+    //         });
+
+    //       }
+
+
+
+
+    //     }}else{
+    //       res.json({
+    //         success:false,
+    //         msg:"Either email invalid or email not recieved"
+    //       });
+    //     }
+    //   }
+    //   );
 
 
   },

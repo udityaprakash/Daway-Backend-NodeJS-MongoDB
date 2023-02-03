@@ -33,6 +33,10 @@ const schema= new mongoose.Schema({
       type:Number,
       default:null
     },
+    createdat:{
+      type: Date,
+      default: Date.now
+    },
     verified:{
       type:Boolean,
       default:false
