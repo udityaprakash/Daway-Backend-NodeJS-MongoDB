@@ -1,7 +1,4 @@
 const express = require("express");
-var mysql = require('mysql2');
-const sqlcon=require("./studentdb");
-const app = express();
 const student = require("./studentdb");
 
 require('dotenv').config();
