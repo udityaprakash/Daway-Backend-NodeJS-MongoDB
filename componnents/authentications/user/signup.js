@@ -43,11 +43,11 @@ post: async (req,res)=>{
                 });
 
                   await user.save().then((user)=>{
-                    // res.status(200).json({
-                    //   success:true,
-                    //   msg:"User Recorded Successfully"
-                    // });
-                    res.redirect("signup/verifyotp/"+email);
+                    res.status(200).json({
+                      success:true,
+                      msg:"User Recorded Successfully"
+                    });
+                    // res.redirect("signup/verifyotp/"+email);
 
                   }).catch((err)=>{
 
@@ -81,12 +81,12 @@ post: async (req,res)=>{
   
   },
   get:(req,res)=>{
-    // res.json({
-      //     //   status:200,
-      //     //   msg:"ready to signup"
-      //     // });
+    res.json({
+            status:200,
+            msg:"ready to signup"
+          });
 
-    res.sendFile(path+"/public/signup.html");
+    // res.sendFile(path+"/public/signup.html");
   },
 
   verifyotp : async (req,res)=>{
@@ -126,10 +126,12 @@ post: async (req,res)=>{
                           console.log("not send :"+error);
                         } else {
                           console.log('Email sent: ' + info.response);
+                          res.json({success:true,
+                          msg:"OTP send to email"});
                         }
             });
 
-            res.sendFile(path+"/public/signupotpverification.html");
+            // res.sendFile(path+"/public/signupotpverification.html");
 
 
 
@@ -137,7 +139,7 @@ post: async (req,res)=>{
             res.json({
                         success:false,
                         msg:"Either email invalid or sender email invalid"
-                      });
+            });
 
           }
         }

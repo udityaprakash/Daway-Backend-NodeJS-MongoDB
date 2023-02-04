@@ -17,14 +17,17 @@ post: async (req,res)=>{
             if(match){
               console.log(result[0].verified);
               if(result[0].verified == true){
-                // res.status(200).json({
-                //   status:true,
-                //   msg:"User Exist"
-                // });
-                res.redirect("dashboard/"+ result[0]._id);
+                res.status(200).json({
+                  status:true,
+                  msg:"User Exist",
+                  redirecturl:"user/dashboard/:_id"
+                });
+                // res.redirect("dashboard/"+ result[0]._id);
 
               }else{
                 res.redirect("signup/verifyotp/" + email );
+                res.json({success:false,msg:"user not verified yet please verify",
+              redirecturl:"user/signup/verifyotp/<email>"});
               }
 
             }else{
@@ -42,13 +45,6 @@ post: async (req,res)=>{
               msg:"Email ID don't exist"
             });
           }
-        // }else{
-        //   res.status(500).json({success:false,
-        //       msg:"Internal Server Database error",
-        //       err:err});
-  
-        // }
-      // });
   
   
     }else{
@@ -57,11 +53,11 @@ post: async (req,res)=>{
   }
   },
   get:(req,res)=>{
-    // res.json({
-    //   status:200,
-    //   msg:"ready to login"
-    // })
-    res.sendFile(path+"/public/login.html");
+    res.json({
+      status:200,
+      msg:"ready to login"
+    })
+    // res.sendFile(path+"/public/login.html");
   }
 }
 

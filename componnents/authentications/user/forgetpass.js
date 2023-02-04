@@ -18,7 +18,12 @@ var transporter = nodemailer.createTransport({
 
 const result={
     get_enteremail:(req,res)=>{
-        res.sendFile(path+"/public/forgetenteremail.html");
+        // res.sendFile(path+"/public/forgetenteremail.html");
+        res.json({
+          success:true,
+          method:"post",
+          ready:"post method here with email to verify email for forget password"
+        })
     },
     post_enteremail:async (req , res)=>{
         const { email } = req.body;
