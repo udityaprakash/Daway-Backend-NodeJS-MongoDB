@@ -1,7 +1,4 @@
-const express=require("express");
 const bcrypt = require("bcrypt");
-const sqlcon=require("../../databasevariables/studentdb");
-const mysql = require("mysql2");
 const path=require("../../../path");
 const student= require("../../databasevariables/studentdb"); 
 
@@ -11,7 +8,6 @@ const result={
 post: async (req,res)=>{
     console.log(req.body);
     let {email , password} = req.body;
-    // var hashedpassword;
     if(email && password){
       email = email.toLowerCase();
       const result = await student.find({ email: email });

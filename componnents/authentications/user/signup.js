@@ -1,14 +1,9 @@
-const express=require("express");
 const bcrypt = require("bcrypt");
-const sqlcon=require("../../databasevariables/studentdb");
 const path=require("../../../path");
-const mysql = require("mysql2");
 var Emailvalidator = require("email-validator");
-const { v4: uuidv4 } = require('uuid');
 require('dotenv').config()
 const nodemailer=require("nodemailer");
 const otpGenerator = require('otp-generator');
-const mongoose = require("mongoose");
 const student = require("../../databasevariables/studentdb");
  
 
@@ -96,12 +91,8 @@ post: async (req,res)=>{
 
   verifyotp : async (req,res)=>{
     let email=req.params['email'];
-    // console.log(process.env.EMAILPASSWORD,email);
     let otp = otpGenerator.generate(6, { upperCaseAlphabets: false, specialChars: false ,lowerCaseAlphabets:false});
 
-
-    // var query="UPDATE user SET otp = "+ otp + " WHERE email = '" + email + "';" ;
-    // var query2="SELECT * FROM user WHERE email = '"+email+"';";
     if(Emailvalidator.validate(email)){
       if(await result.studentexist(email)){
         var u = await student.findOne({email : email});
@@ -184,17 +175,10 @@ post: async (req,res)=>{
 
     if(Emailvalidator.validate(email)){
       var resu = await student.find({email:email});
-
-      // sqlcon.query(query, function (err, resu) {
         if(resu.length!=0){
         if (resu[0].verified == false){
             if(resu[0].otp == otp){
-              // var query2="UPDATE user SET verify = "+ true + " , otp = "+ null +" WHERE email = '" + email + "';" ;
               var result = await student.findOneAndUpdate({email:email},{otp:null,verified:true});
-              // sqlcon.query(query2, function (err, result) {
-              //   if (err) throw err;
-              //   console.log(result.affectedRows + " record(s) updated and user verified");
-              // });
               console.log(result);
               res.json({
                 success:true,
@@ -220,7 +204,6 @@ post: async (req,res)=>{
             res.json({success:false,
             msg:"user doesn't exist"});
         }
-      // });
 
 
   }
