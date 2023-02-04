@@ -6,7 +6,7 @@ const student = require("./studentdb");
 
 require('dotenv').config();
 const mongoose = require("mongoose");
-
+var i=0;
 
 const connectDB =  {
   connection: async () => {
@@ -20,7 +20,7 @@ const connectDB =  {
                     console.log("error in schema: "+err);
                   }
               } else {
-                  console.log("Retrying connecting to database");
+                  console.log("Retrying connecting to database : " + i++);
                   connectDB.connection();
               }
           });

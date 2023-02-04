@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 const sqlcon=require("../../databasevariables/studentdb");
 const mysql = require("mysql2");
 const path=require("../../../path");
+const student= require("../../databasevariables/studentdb"); 
 
 
 
@@ -10,31 +11,24 @@ const result={
 post: async (req,res)=>{
     console.log(req.body);
     let {email , password} = req.body;
-    var hashedpassword;
+    // var hashedpassword;
     if(email && password){
-      bcrypt.hash(password,process.env.SALT,(err,hash)=>{
-        hashedpassword=hash;
-      });
-      email=email.toLowerCase();
-      var query= "SELECT * FROM user WHERE email = '"+email+"';";
-      sqlcon.query(query, function (err, result) {
-        if (!err){
-          if(result.length!=0){
-            if(result[0].password==password){
-              if(result[0].verify==true){
+      email = email.toLowerCase();
+      const result = await student.find({ email: email });
+      console.log(result);
+      if(result != null){
+            const match =await bcrypt.compare(password, result[0].password);
+            if(match){
+              console.log(result[0].verified);
+              if(result[0].verified == true){
                 // res.status(200).json({
                 //   status:true,
                 //   msg:"User Exist"
                 // });
-                res.redirect("dashboard/"+
-                result[0].id
-                );
+                res.redirect("dashboard/"+ result[0]._id);
 
               }else{
-                res.redirect("signup/verifyotp/"+
-                email
-                );
-
+                res.redirect("signup/verifyotp/" + email );
               }
 
             }else{
@@ -52,13 +46,13 @@ post: async (req,res)=>{
               msg:"Email ID don't exist"
             });
           }
-        }else{
-          res.status(500).json({success:false,
-              msg:"Internal Server Database error",
-              err:err});
+        // }else{
+        //   res.status(500).json({success:false,
+        //       msg:"Internal Server Database error",
+        //       err:err});
   
-        }
-      });
+        // }
+      // });
   
   
     }else{
